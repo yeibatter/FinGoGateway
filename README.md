@@ -252,7 +252,7 @@ Variables de respuesta:
 * **message** : Mensaje en caso de algun error
 * **errorMessage** : Mensaje de error en caso de existir
 * **errorCode** : Codigo de Error en caso de existir
-* **isValid** : *Bandera donde se puede evaluar si el cliente es valido o no*
+* **isValid** : *Bandera donde se puede evaluar si la consulta es valida o no*
 
 Si el cliente no tiene productos, el Api Retorna
 * **status** : 200
@@ -397,6 +397,6 @@ Variables de respuesta:
 * **message** : Mensaje en caso de algun error
 * **errorMessage** : Mensaje de error en caso de existir
 * **errorCode** : Codigo de Error en caso de existir
-* **isValid** : *Bandera donde se puede evaluar si el cliente es valido o no*
+* **isValid** : *Bandera donde se puede evaluar si la consulta es valida o no*
 
 ---
