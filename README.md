@@ -386,10 +386,11 @@ Si la informacion ingresada es correcta, el Api Retorna
         }
     ],
     "isValid": true,
-    "message": " - ",
+    "message": "-",
     "errorCode": "00",
     "errorMessage": "OPERACION EXITOSA"
-}```
+}
+```
 
 Variables de respuesta:
 * **Movimientos** = **Objeto Movimientos con la información relacionada a este**
