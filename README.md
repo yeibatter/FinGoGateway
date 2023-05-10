@@ -7,7 +7,16 @@
  - [Authorization - Login](#ApiGatewayAutorization)
  - [Credit Card - Consulta Cliente](#ApiGatewayCreditCardConsultaCliente)
  - [Credit Card - Consulta Producto](#ApiGatewayCreditCardConsultaProducto)
+ - [Bloqueo Temporal Tarjeta](#ApiGatewayCreditCardDesactivarTarjeta)
+ - [Activacion Bloqueo Tarjeta Temporal](#ApiGatewayCreditCardActivarTarjeta)
+ 
+#### Gestion del Usuario
 
+- [Cambio de Contraseña](#ApiGatewayCreditCardUserUpdatePassword)
+- [Cambio de Correo](#ApiGatewayCreditCardUserUpdateMail)
+- [Cambio de Telefono](#ApiGatewayCreditCardUserUpdatePhone)
+
+---
 **Fingo Gateway**  es un servicio comercial, para su uso, contacte a  [info@bytte.com.co](mailto:info@bytte.com.co) para obtener instrucciones y credenciales de acceso
 
 **FinGo y MiiD** Son Marcas registradas por Bytte S.A.S 
@@ -400,3 +409,203 @@ Variables de respuesta:
 * **isValid** : *Bandera donde se puede evaluar si la consulta es valida o no*
 
 ---
+--- 
+## <a name="ApiGatewayCreditCardDesactivarTarjeta"></a>Api Gateway Credit Card - Bloqueo Tarjeta Temporal
+Dado el Número de tarjeta, se realiza el proceso de bloqueo Temporal de la tarjeta
+
+Url - Desactivar Tarjeta/Producto - **POST**
+
+https://servicesdev.fingo.credit/mg/CreditCard/DesactivarTarjeta/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{
+  "tarjetaNumero": "AE667957EA7F9356044FF44FD69DA973"
+}
+```
+
+Variables a enviar:
+* **tarjetaNumero** : Número de tarjeta obtenido del arreglo retornado en el servicio **Consulta Productos**
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{
+    "isValid": true,
+    "message": "TRANSACCION EXITOSA"
+}
+```
+
+Variables de respuesta:
+* **message** : Mensaje en caso de algun error
+* **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
+---
+
+## <a name="ApiGatewayCreditCardActivarTarjeta"></a>Api Gateway Credit Card - Activacion Bloqueo Tarjeta Temporal
+Dado el Número de tarjeta, se realiza el proceso de activacion de la tarjeta dado por un bloqueo temporal
+
+Url - Desactivar Tarjeta/Producto - **POST**
+
+https://servicesdev.fingo.credit/mg/CreditCard/ActivarTarjeta/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{
+  "tarjetaNumero": "AE667957EA7F9356044FF44FD69DA973"
+}
+```
+
+Variables a enviar:
+* **tarjetaNumero** : Número de tarjeta obtenido del arreglo retornado en el servicio **Consulta Productos**
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{
+    "isValid": true,
+    "message": "TRANSACCION EXITOSA"
+}
+```
+
+Variables de respuesta:
+* **message** : Mensaje en caso de algun error
+* **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
+---
+## <a name="ApiGatewayCreditCardUserUpdatePassword"></a>Api Gateway User - Cambio de Contraseña
+Dado el Número de identificacion y el Tipo, procede a realizar el cambio de contraseña
+
+Url - **POST**
+https://servicesdev.fingo.credit/Graph/api/UpdatePassword/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{
+    "documentType": "1",
+    "documentNumber": "41683015",
+    "password": "6987"
+}
+```
+
+Variables a enviar:
+* **documentType** : Tipo de Documento del Cliente
+* **documentNumber** : Numero de Documento del Cliente
+* **password** : Nuevo Password
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{    
+    "isValid": true,
+    "message": "Update user - ID: 'd8d66755-ac5f-416d-863f-05da6c9ea45a' OK"
+}
+```
+
+Variables de respuesta:
+* **message** : Mensaje en caso de algun error
+* **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
+--
+
+## <a name="ApiGatewayCreditCardUserUpdateMail"></a>Api Gateway User - Cambio de Correo
+Dado el Número de identificacion y el Tipo, procede a realizar el cambio de correo electronico
+
+Url - **POST**
+https://servicesdev.fingo.credit/Graph/api/UpdateMail/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{
+  "documentType": "1",  
+  "documentNumber": "51383518",  
+  "emailAddress": "cliente.fingo@gmail.com"  
+}
+```
+
+Variables a enviar:
+* **documentType** : Tipo de Documento del Cliente
+* **documentNumber** : Numero de Documento del Cliente
+* **emailAddress** : Nuevo Correo electronico del cliente
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{    
+    "isValid": true,
+    "message": "Update user - ID: 'd8d66755-ac5f-416d-863f-05da6c9ea45a' OK"
+}
+```
+
+Variables de respuesta:
+* **message** : Mensaje en caso de algun error
+* **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
+--
+
+
+## <a name="ApiGatewayCreditCardUserUpdatePhone"></a>Api Gateway User - Cambio de Telefono
+Dado el Número de identificacion y el Tipo, procede a realizar el cambio de Telefono
+
+Url - **POST**
+https://servicesdev.fingo.credit/Graph/api/UpdatePhoneNumber/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{
+  "documentType": "1",
+  "documentNumber": "41683015",  
+  "countrycode" : "57",
+  "phonenumber" : "3105626067"  
+}
+```
+
+Variables a enviar:
+* **documentType** : Tipo de Documento del Cliente
+* **documentNumber** : Numero de Documento del Cliente
+* **countrycode** : Codigo del Pais del telefono del cliente
+* **phonenumber** : Nuevo Numero de telefono del cliente
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{    
+    "isValid": true,
+    "message": "Update user - ID: 'd8d66755-ac5f-416d-863f-05da6c9ea45a' OK"
+}
+```
+
+Variables de respuesta:
+* **message** : Mensaje en caso de algun error
+* **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
