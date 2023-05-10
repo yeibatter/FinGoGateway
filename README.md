@@ -9,7 +9,7 @@
  - [Credit Card - Consulta Producto](#ApiGatewayCreditCardConsultaProducto)
  - [Bloqueo Temporal Tarjeta](#ApiGatewayCreditCardDesactivarTarjeta)
  - [Activacion Bloqueo Tarjeta Temporal](#ApiGatewayCreditCardActivarTarjeta)
- 
+ - [Bloqueo Tarjeta Definitivo](#ApiGatewayCreditCardBloqueoDefinitivo)
 #### Gestion del Usuario
 
 - [Cambio de Contraseña](#ApiGatewayCreditCardUserUpdatePassword)
@@ -484,6 +484,46 @@ Si la informacion ingresada es correcta, el Api Retorna
 Variables de respuesta:
 * **message** : Mensaje en caso de algun error
 * **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
+---
+
+## <a name="ApiGatewayCreditCardBloqueoDefinitivo"></a>Api Gateway Credit Card - Bloqueo Definitivo
+Dado el Número de tarjeta, se realiza el proceso de Bloqueo definitivo
+Este proceso no se puede deshacer y genera la reexpedicion de una nueva tarjeta
+
+Url - Bloqueo definitivo Tarjeta/Producto - **POST**
+
+https://servicesdev.fingo.credit/mg/CreditCard/BloqueoDefinitivo/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{
+  "tarjetaNumero": "AE667957EA7F9356044FF44FD69DA973"
+}
+```
+
+Variables a enviar:
+* **tarjetaNumero** : Número de tarjeta obtenido del arreglo retornado en el servicio **Consulta Productos**
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{
+    "isValid": true,
+    "message": "TRANSACCION EXITOSA"
+}
+```
+
+Variables de respuesta:
+* **message** : Mensaje en caso de algun error
+* **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
+---
 ---
 ## <a name="ApiGatewayCreditCardUserUpdatePassword"></a>Api Gateway User - Cambio de Contraseña
 Dado el Número de identificacion y el Tipo, procede a realizar el cambio de contraseña
