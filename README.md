@@ -10,8 +10,9 @@
  - [Bloqueo Temporal Tarjeta](#ApiGatewayCreditCardDesactivarTarjeta)
  - [Activacion Bloqueo Tarjeta Temporal](#ApiGatewayCreditCardActivarTarjeta)
  - [Bloqueo Tarjeta Definitivo](#ApiGatewayCreditCardBloqueoDefinitivo)
-#### Gestion del Usuario
+ - [Decifrar Numero de Tarjeta](#ApiGatewayCreditCardDecifrarTarjeta)
 
+#### Gestion del Usuario
 - [Cambio de Contraseña](#ApiGatewayCreditCardUserUpdatePassword)
 - [Cambio de Correo](#ApiGatewayCreditCardUserUpdateMail)
 - [Cambio de Telefono](#ApiGatewayCreditCardUserUpdatePhone)
@@ -523,7 +524,47 @@ Si la informacion ingresada es correcta, el Api Retorna
 Variables de respuesta:
 * **message** : Mensaje en caso de algun error
 * **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
+
 ---
+## <a name="ApiGatewayCreditCardDecifrarTarjeta"></a>Api Gateway - Decifrar Tarjeta
+Dado el Número de tarjeta Cifrado, Retorna el numero de Tarjeta en claro
+
+Url - Desactivar Tarjeta/Producto - **POST**
+
+https://servicesdev.fingo.credit/mg/CreditCard/DecifrarTarjeta/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{
+  "tarjetaNumero": "AE667957EA7F9356044FF44FD69DA973"
+}
+```
+
+Variables a enviar:
+* **tarjetaNumero** : Número de tarjeta cifrado obtenido del arreglo retornado en el servicio **Consulta Productos**
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{
+    "numero": "4146********1234",
+    "isValid": true
+}
+```
+
+Variables de respuesta:
+* **numero** : Número de tarjeta con mascara
+* **message** : Mensaje en caso de algun error
+* **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
+---
+
 ---
 ## <a name="ApiGatewayCreditCardUserUpdatePassword"></a>Api Gateway User - Cambio de Contraseña
 Dado el Número de identificacion y el Tipo, procede a realizar el cambio de contraseña
@@ -606,8 +647,6 @@ Variables de respuesta:
 * **message** : Mensaje en caso de algun error
 * **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
 --
-
-
 ## <a name="ApiGatewayCreditCardUserUpdatePhone"></a>Api Gateway User - Cambio de Telefono
 Dado el Número de identificacion y el Tipo, procede a realizar el cambio de Telefono
 
