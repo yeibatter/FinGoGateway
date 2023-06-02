@@ -2,7 +2,7 @@
 
 **Fingo Gateway** Es un api que provee la funcionalidad de conectividad con el Backen de Fingo y MiiD
 
-## Operaciones
+### Operaciones
 
  - [Authorization - Login](#ApiGatewayAutorization)
  - [Credit Card - Consulta Cliente](#ApiGatewayCreditCardConsultaCliente)
@@ -17,6 +17,12 @@
 - [Cambio de Correo](#ApiGatewayCreditCardUserUpdateMail)
 - [Cambio de Telefono](#ApiGatewayCreditCardUserUpdatePhone)
 
+#### OnBoarding - MiiD 
+- [Consulta por Formulario y Documento](#ApiConsultaUsuarioForm)
+- [Upload Image](#ApiGatewayMiiDUploadImage)
+- [Upload Image Multiple](#ApiGatewayMiiDUploadImageMultiple)
+- [Enroll Person](#ApiGatewayMiiDEnrollPersonAsyncGateway)
+- [Consulta Estado del Proceso de Enrolamiento](#ApiGatewayMiiDGetResultByProcessId)
 ---
 **Fingo Gateway**  es un servicio comercial, para su uso, contacte a  [info@bytte.com.co](mailto:info@bytte.com.co) para obtener instrucciones y credenciales de acceso
 
@@ -688,3 +694,381 @@ Si la informacion ingresada es correcta, el Api Retorna
 Variables de respuesta:
 * **message** : Mensaje en caso de algun error
 * **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
+
+---
+## <a name="ApiConsultaUsuarioForm"></a>Api Gateway MiiD - Consulta por Usuario Y Formulario
+Dado el Número de identificacion y el identificador del formulario, procede a consultar si tiene procesos aprobados pendientes por procesar
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/miid/ApiConsultaUsuarioForm/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{
+  "documentType": "1",
+  "documentNumber": "41683015",  
+  "countrycode" : "57",
+  "phonenumber" : "3105626067"  
+}
+```
+
+Variables a enviar:
+* **documentType** : Tipo de Documento del Cliente
+* **documentNumber** : Numero de Documento del Cliente
+* **countrycode** : Codigo del Pais del telefono del cliente
+* **phonenumber** : Nuevo Numero de telefono del cliente
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{    
+    "isValid": true,
+    "message": "Update user - ID: 'd8d66755-ac5f-416d-863f-05da6c9ea45a' OK"
+}
+```
+
+Variables de respuesta:
+* **message** : Mensaje en caso de algun error
+* **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
+
+--
+## <a name="ApiGatewayMiiDUploadImage"></a>Api Gateway MiiD - Upload Image
+Realiza la Carga de Imagenes enviadas por el SDK de MiiD
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/miid/UploadImage/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body Type
+* **form-data**
+
+Form Variables
+
+* **key** :  Binario - Archivo con la captura a enviar
+* **sessionid** :  Session Id (El SDK de MiiD genera este valor)
+
+ Ejemplo de Llamado
+```console
+curl --location 'https://servicesdev.fingo.credit/mg/miid/UploadImage/' \
+--header 'Authorization: Bearer eyJ0eXA...' \
+--form 'key=@"/Allan/FP_HuellaPW123.bytte"' \
+--form 'sessionid="bytte123"'
+```
+
+Ejemplo de Respuesta:
+```json
+{
+    "dataKey": "2d401ca2-5b3a-4a41-82d8-101afd7c1095",
+    "successOperation": true
+}
+``` 
+
+Variables de respuesta:
+* **dataKey** :  Identificador del archivo cargado para posterior uso!
+* **successOperation** : *Bandera donde se puede evaluar si el proceso es valido o no*
+--
+## <a name="ApiGatewayMiiDUploadImage"></a>Api Gateway MiiD - Upload Image Multple
+Realiza la Carga de multiples imagenes enviadas por el SDK de MiiD en un solo contenedor (un archivo contiene multiples imagenes)
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/miid/UploadImageMultiple/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body Type
+* **form-data**
+
+Form Variables
+
+* **key** :  Binario - Archivo con las capturas (El SDK de MiiD genera este insumo)
+* **sessionid** :  Session Id (El SDK de MiiD genera este valor)
+
+ Ejemplo de Llamado
+```console
+curl --location 'https://servicesdev.fingo.credit/mg/miid/UploadImageMultiple/' \
+--header 'Authorization: Bearer eyJ0eXA...' \
+--form 'key=@"/Allan/FP_HuellaPW123.bytte"' \
+--form 'sessionid="bytte123"'
+```
+
+Ejemplo de Respuesta (Lista de Elementos) :
+```json
+[
+    {
+        "dataKey": "709ec226-9a0d-436d-afe7-3d5245734501",
+        "dataName": "FP_20_IMG_31648B36-FFCE-4DF4-9EFD-21C3821A0CF2"
+    },
+    {
+        "dataKey": "384e128b-5574-4100-85dd-7c044b1b4662",
+        "dataName": "FP_2_IMG_8F221176-69A9-4DE6-B839-1AF5F7F89302"
+    },
+    {
+        "dataKey": "c4a022e5-ee35-4845-a8ff-4091ed977253",
+        "dataName": "FP_4_IMG_76E3C264-B3F6-4C67-99F6-5616B0B3AF09"
+    },
+    {
+        "dataKey": "dd055231-c676-48af-ae80-3e45ab229bf4",
+        "dataName": "FP_5_IMG_B396407D-1E85-42D4-814A-38332EA6AF13"
+    },
+    {
+        "dataKey": "3375ab22-1a8a-4a86-aab5-6eb91f06383A",
+        "dataName": "FP_3_IMG_92973B20-BCCE-4BA2-B5A4-343C6A965D7C"
+    }
+]
+``` 
+
+Variables de respuesta (por cada elemento):
+* **dataKey** : Identificador del archivo cargado para posterior uso!
+* **dataName** :  Identificador del tipo de archivo cargado para posterior usio
+--
+
+## <a name="ApiGatewayMiiDEnrollPersonAsyncGateway"></a>Api Gateway MiiD - Enroll Person
+Realiza el procesamiento de los insumos enviados desde el app para realizar un proceso de enrolamiento en el sistema FinGo usando MiiD
+
+* El llamado es Asincrono, por lo que el servicio no tiene altos tiempos de respuesta
+* Para conocer el estado del proceso, se debe realizar una consulta al servicio **GetResultByProcessId**
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/miid/EnrollPersonAsyncGateway/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body Type
+* **form-data**
+## Opción 1 (Recomendada) - Envio DataKeys en el request
+
+* Los datakeys son obtenidos al realizar la carga de un archivo usando el servicio **UploadFile** o **UploadFileMultiple**
+
+Form Variables
+### Textos
+* **FaceDataKey** : DataKey del archivo con el contenido del rostro
+* **FingerXDataKey** : DataKey del archivo con el contenido del dedo capturado
+  X es un valor que puede ser 1 hasta 10 o 20-21  
+  !Un registro es generado por cada dedo capturado!  
+
+* **DocumentBackImageDataKey** :  DataKey del archivo con el contenido del reverso del documento
+* **DocumentBackImageframeDataKey** : DataKey del archivo con el contenido full frame del reverso del documento
+* **DocumentFrontImageDataKey** : DataKey del archivo con el contenido del frente del documento
+* **DocumentFrontImageframeDataKey** : DataKey del archivo con el contenido full frame del frente del documento     
+* **BarcodeBase64**: Codigo de barras PDF417/MRZ codificado 
+* **EmailAddress** : Direccion de correo del cliente final
+* **ExternalId** : Identificador unico generado por el dispositivo para posteriores consultas
+* **FormId** : Identificador del Formulario autorizado
+* **DocumentType** : Tipo de Documento (1=CC, 2=NIT, etc)
+* **DocumentNumber** : Numero de Documento
+
+Ejemplo de Llamado
+```console
+curl --location --request POST 'https://servicesdev.fingo.credit/mg/miid/EnrollPersonAsyncGateway' \
+--header 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...' \
+--form 'facedatakey="30ce7c1e-2792-48da-a7f3-cc759ead3c66"' \
+--form 'finger2datakey="050424f6-a45c-4362-8fd3-2999bc055096"' \
+--form 'finger3datakey="44bc4c13-0ead-4346-a752-57d7a6b3931c"' \
+--form 'finger4datakey="a0fecd2e-f70f-46f8-85f1-83df3f1f1bde"' \
+--form 'finger1datakey="05ed66f7-0c16-4df3-821a-3332af68447d"' \
+--form 'finger21datakey="57d7a6b3-00ea-446f-821a-cd759ead3c66"' \
+--form 'barcodebase64="MDM1ODAwNz.."' \
+--form 'emailaddress="allan.diaz@bytte.com.co"' \
+--form 'externalid="11EEA344-111123-2047"' \
+--form 'documentbackimagedatakey="14677095-18fc-4b0a-b4ca-37f15d8b5488"' \
+--form 'documentfrontimagedatakey="0f702976-8251-4900-965e-6faad6c99c28"' \
+--form 'documentbackimageframedatakey="a0fecd2e-f70f-46f8-85f1-83df3f1f1bde"' \
+--form 'documentfrontimageframedatakey ="0f702976-8251-4900-965e-6faad6c99c28"' \
+--form 'FormId="A341-94400-AB-0157D"' \
+--form 'DocumentType="1"' \
+--form 'DocumentNumber="80208223"'
+```
+
+## Opción 2 (No Recomendada pero posible)- Envio Archivos en el request
+
+Form Variables
+### Binarios
+* **Face** : Binario - archivo con el contenido del rostro
+* **FingerX** : Binario - archivo con el contenido del dedo capturado
+  X es un valor que puede ser 1 hasta 10 o 20-21  
+  !Un registro es generado por cada dedo capturado!  
+
+* **DocumentBackImage** :  Binario - archivo con el contenido del reverso del documento
+* **DocumentBackImageframe** :  Binario - archivo con el contenido full frame del reverso del documento
+* **DocumentFrontImage** :  Binario - archivo con el contenido del frente del documento
+* **DocumentFrontImageframe** :  Binario - archivo con el contenido full frame del frente del documento   
+  
+### Textos
+* **BarcodeBase64**: Codigo de barras PDF417/MRZ codificado 
+* **EmailAddress** : Direccion de correo del cliente final
+* **ExternalId** : Identificador unico generado por el dispositivo para posteriores consultas
+* **FormId** : Identificador del Formulario autorizado
+* **DocumentType** : Tipo de Documento (1=CC, 2=NIT, etc)
+* **DocumentNumber** : Numero de Documento
+
+Ejemplo de Llamado
+```console
+curl --location --request POST 'https://servicesdev.fingo.credit/mg/miid/EnrollPersonAsyncGateway' \
+--header 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...' \
+--form 'Face=@"//imgSelfie.jpg"' \   
+--form 'Finger3=@"//insHuella2.jpg"' \ 
+--form 'Finger4=@"//insHuella3.jpg"' \ 
+--form 'Finger5=@"//insHuella4.jpg"' \ 
+--form 'Finger2=@"//insHuella1.jpg"' \ 
+--form 'Finger21=@"//insHuella21.jpg"' \ 
+--form 'BarcodeBase64="MDIwMTYyOT..."' \
+--form 'EmailAddress="allan.diaz@bytte.com.co"' \
+--form 'ExternalId="aa-223344-111123-2003"' \
+--form 'DocumentBackImage=@"//reversoCO.jpg"' \
+--form 'DocumentFrontImage=@"//frenteCO.png"' \
+--form 'DocumentBackImageFrame=@"//reversofullframeCO.jpg"' \
+--form 'DocumentFrontImageFrame=@"//frentefullframeCO.png"' \
+--form 'FormId="A341-94400-AB-0157D"' \
+--form 'DocumentType="1"' \
+--form 'DocumentNumber="80208223
+```
+--
+Ejemplo de Respuesta (por cualquiera de las 2 opciones):
+```json
+{
+    "id": "668ccde7-d9ea-4648-ab64-02ec51d41139",
+    "processId": "aaf25d98-a43f-4052-98a1-588b11c02d90",  --> Identificador de la transaccion  
+    "tipoDocumentoId": 1,
+    "numeroDocumento": "51778371",
+    "startDate": "2023-06-02T09:34:41",  
+    "formId": "A341-94400-AB-0157D",
+    "externalId": "aa-223344-111123-2003",
+    "mail": "allan.diaz@bytte.com.co",
+    "status": 0,
+    "inProcess": true
+}
+``` 
+
+Variables de respuesta (por cada elemento):
+* **id** : Identificador interno del sistema Fingo (no se debe usar)
+* **processId** :  Identificador de la transaccion, este dato se usara para consultar el estado del proceso
+* **tipoDocumentoId** : Tipo de Documento del Cliente enviado
+* **numeroDocumento** : Numero de documento del Cliente enviado
+* **startDate** : Fecha de Inicio del Proceso
+* **formId** : Identificador del Formulario a procesar
+* **externalId** : Identificador externo enviado desde el dispositivo
+* **mail** : Correo del cliente enviado
+
+* **status** : Estado del proceso
+    * *0* : En proceso, hay que esperar
+    * *1* : Proceso finalizado 
+
+* **inProcess** : Estado actual del proceso 
+    * *true* : En proceso, hay que esperar
+    * *false* : Proceso finalizado
+    
+## <a name="ApiGatewayMiiDGetResultByProcessId"></a>Api Gateway MiiD - Consulta Estado del Proceso de Enrolamiento
+Dado los siguientes datos, retorna el estado del enrolamiento enviado a MiiD
+
+* **Tipo de Documento**
+* **Numero de Documento**
+* **Process Id** (Entregado por el servicio **EnrollPerson**)
+* **Identificador del formulario** 
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/miid/GetResultByProcessId/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{
+    "tipoDocumentoId": 1,
+    "numeroDocumento": "51778371",
+    "formId": "AAEE-F01DE-001-P099-A01",    
+    "processId": "aaf25d98-a43f-4052-98a1-588b11c02d90"
+}
+```
+
+Variables a enviar:
+* **tipoDocumentoId** : Tipo de Documento del Cliente
+* **numeroDocumento** : Numero de Documento del Cliente
+* **formId** : Identificador del formulario 
+* **processId** : Identificador de la transaccion generado por el servicio **EnrollPerson**
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{
+    "id": "668ccde7-d9ea-4648-ab64-02ec51d41139",
+    "processId": "aaf25d98-a43f-4052-98a1-588b11c02d90",
+    "tipoDocumentoId": 1,
+    "startDate": "2023-06-02T09:34:41",
+    "finishDate": "2023-06-02T09:34:55",
+    "formId": "AAEE-F01DE-001-P099-A01",
+    "externalId": "11223344-111123-2047aa",
+    "mail": "allan.diaz@bytte.com.co",
+    "status": 1,
+    "statusProcess": true,
+    "enrollFinger": 1,
+    "enrollFace": 1,
+    "statusPagare": 0,
+    "statusPrducto": 0,
+    "numeroDocumento": "51778371",
+    "inProcess": false
+}
+```
+
+Variables de respuesta:
+* **id** : Identificador interno del sistema Fingo (no se debe usar)
+* **processId** :  Identificador de la transaccion, este dato se usara para consultar el estado del proceso
+* **tipoDocumentoId** : Tipo de Documento del Cliente enviado
+* **numeroDocumento** : Numero de documento del Cliente enviado
+* **startDate** : Fecha de Inicio del Proceso
+* **finishDate** : Fecha de Finalizacion del proceso (si no ha finalizado, no se retorna)
+* **formId** : Identificador del Formulario a procesar
+* **externalId** : Identificador externo enviado desde el dispositivo
+* **mail** : Correo del cliente enviado
+* **status** : Estado del proceso
+    * *0* : Pendiente
+    * *1* : Finalizado
+
+* **inProcess** : Estado actual del proceso 
+    * *true* : En proceso, hay que esperar
+    * *false* : Proceso finalizado
+     
+* **statusProcess** : Estado del enrolamiento 
+    * *true* : Persona enrolada correctamente
+    * *false* : No fué exitos el proceso de enrolamiento
+
+* **enrollFinger** : Estado del proceso de Enrolamiento dactilar
+    * *0* : No Enrolado Dactilar
+    * *1* : Enrolado Dactilar
+
+* **enrollFace** : Estado del proceso de Enrolamiento facial
+    * *0* : No Enrolado Facial
+    * *1* : Enrolado Facial
+
+* **statusPagare** : Estado de la generacion de pagaré
+    * *0* : No Generado
+    * *1* : Generado
+
+* **statusPrducto** : Estado de la generacion del producto
+    * *0* : No Generado
+    * *1* : Generado
+--
