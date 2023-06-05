@@ -700,7 +700,7 @@ Variables de respuesta:
 Dado el Número de identificacion y el identificador del formulario, procede a consultar si tiene procesos aprobados pendientes por procesar
 
 Url - **POST**
-https://servicesdev.fingo.credit/mg/miid/ApiConsultaUsuarioForm/
+https://servicesdev.fingo.credit/mg/Empresa/ConsultaEstadoSolicitud/
 
 **Cabeceras a Enviar**
 * Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
@@ -711,32 +711,51 @@ https://servicesdev.fingo.credit/mg/miid/ApiConsultaUsuarioForm/
 Body
 ```json
 {
-  "documentType": "1",
-  "documentNumber": "41683015",  
-  "countrycode" : "57",
-  "phonenumber" : "3105626067"  
+    "tipoIdentificacionId": 2,
+    "numeroDocumento": "002",
+    "formId" : "5BEB-376D"
 }
 ```
 
 Variables a enviar:
-* **documentType** : Tipo de Documento del Cliente
-* **documentNumber** : Numero de Documento del Cliente
-* **countrycode** : Codigo del Pais del telefono del cliente
-* **phonenumber** : Nuevo Numero de telefono del cliente
+* **tipoIdentificacionId** : Tipo de Identificación de la Empresa
+* **numeroDocumento** : Numero de Documento de la empresa
+* **formId** : Identificador del Formulario procesado
 
 Si la informacion ingresada es correcta, el Api Retorna
 * **status** : 200
 
 ```json
-{    
+{
+    "empresa": {
+        "tipoIdentificacionId": 3,
+        "numeroDocumento": "002",
+        "nombre": "Bug 14196",
+        "direccion": "Calle 12   13   13 ",
+        "email": "autenticacion2miid@gmail.com",
+        "telefono": "3992021",
+        "telefonoCel": "3102939334",
+        "formId": "5BEB-376D",
+        "representante": {
+            "id": 113,
+            "tipoIdentificacionId": 4,
+            "numeroDocumento": "002",
+            "primerNombre": "Santiago",
+            "segundoNombre": "",
+            "primerApellido": "Reyes",
+            "segundoApellido": "",
+            "fechaCreacion": "2023-05-31T14:14:20-05:00"
+        }
+    },
     "isValid": true,
-    "message": "Update user - ID: 'd8d66755-ac5f-416d-863f-05da6c9ea45a' OK"
+    "message": ""
 }
 ```
 
 Variables de respuesta:
-* **message** : Mensaje en caso de algun error
-* **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no*
+* **empresa** : Informacion de la Empresa a procesar
+* **representante** : Información del representante legal a quien se le realizará el proceso de MiiD. de aca se deberá obtener el numero y tipo de documento
+* **isValid** : *Bandera donde se puede evaluar si el proceso es valido o no para continuar*
 
 --
 ## <a name="ApiGatewayMiiDUploadImage"></a>Api Gateway MiiD - Upload Image
