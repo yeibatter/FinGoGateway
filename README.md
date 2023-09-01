@@ -23,6 +23,17 @@
 - [Upload Image Multiple](#ApiGatewayMiiDUploadImageMultiple)
 - [Enroll Person](#ApiGatewayMiiDEnrollPersonAsyncGateway)
 - [Consulta Estado del Proceso de Enrolamiento](#ApiGatewayMiiDGetResultByProcessId)
+- [Empresa - Acepta Pagaré Contrato](#ApiGatewayEmpresaAceptaPagareContrato)
+
+
+#### Entrega Tarjeta - MiiD 
+- [Consulta Operador por Numero y Tipo deDocumento](#ApiEntregaGetOperatorByDocument)
+- [Autenticacion Operador Face](#ApiEntregaAuthenticationOperatorPersonFace)
+- [Consulta Cliente Entrega](#ApiEntregaConsultaClienteEntrega)
+- [Authenticacion Cliente Face](#ApiEntregaAuthenticationPersonFace)
+- [Authenticacion Cliente Finger](#ApiEntregaAuthenticationPersonFinger)
+- [Activa Tarjeta Cliente Entrega](#ApiEntregaActivaTarjetaClienteEntrega)
+
 ---
 **Fingo Gateway**  es un servicio comercial, para su uso, contacte a  [info@bytte.com.co](mailto:info@bytte.com.co) para obtener instrucciones y credenciales de acceso
 
@@ -1090,4 +1101,495 @@ Variables de respuesta:
 * **statusPrducto** : Estado de la generacion del producto
     * *0* : No Generado
     * *1* : Generado
+---
+
+---
+## <a name="ApiGatewayEmpresaAceptaPagareContrato"></a>Api Gateway MiiD - Acepta Pagaré Contrato
+Este se debe usar al momento de haber pasado el proceso de MiiD, Aceptar los diferentes términos y condiciones, y solicitar la clave del usuario para acceso al app
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/Empresa/AceptaPagareContrato/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{
+    "tipoIdentificacionId": 1,
+    "numeroDocumento": "1031159822",
+    "EnterpriseDocumentType": 2,
+    "EnterpriseDocumentNumber": "9011275876",
+    "formId": "5D08-1B8C2",
+    "cicloFacturacion": 23,
+    "usuario": xbti@gmail.com,
+    "password": "5790"
+}
+
+```
+
+Variables a enviar:
+* **tipoIdentificacionId** : Tipo de Identificación del Cliente
+* **numeroDocumento** : Numero de Documento del Cliente
+* **EnterpriseDocumentType** : Tipo de Documento de la empresa
+* **EnterpriseDocumentNumber** : Número de documento de la empresa
+* **formId** : Formulario en proceso
+* **cicloFacturacion** : Ciclo de Facturacion seleccionado por el cliente a su tarjeta
+* **usuario** : usuario para acceder al app
+* **password** : Clave de Acceso al app
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{
+    "isValid": true,
+    "message": "Solciud Procesada"
+}
+
+```
+
+Variables de respuesta:
+* **isValid** : *Bandera a evaluar si el proceso fué exitoso*
+* **message** : Mensaje del proceso
+
+---
+## <a name="ApiEntregaGetOperatorByDocument"></a>Api Gateway MiiD - Entrega - Consulta Operador
+Dado el Número de identificacion y el identificador del operador, procede a consultarlo para iniciar el proceso de entrega
+
+El Operador debe estar enrolado previamente con el aliado designado para esta operación
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/EntregaOperador/GetOperatorByDocument/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{    
+    "tipoDocumentoId": 1,    
+    "numeroDocumento": "1031159822"
+}
+```
+
+Variables a enviar:
+* **tipoDocumentoId** : Tipo de Identificación del Operador
+* **numeroDocumento** : Numero de Documento del Operador
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{
+    "biometricPerson": {                         
+        "firstName": "ALEX FABIAN",
+        "lastName": "POLO DIAZ",
+        "birthDate": "1980/27/09",
+        "isEnrollFace": true, **
+        "isEnrollVoice": false,
+        "isEnrollFingers": true
+    },
+    "successOperation": true
+}
+```
+
+Variables de respuesta:
+* **biometricPerson** : Estructura con la información Biometrica del Operador
+* **firstName** : Nombres del Operador
+* **lastName** : Apellidos del Operador
+* **birthDate** : Fecha de Nacimiento del Operador
+* **isEnrollFace** : Bandera - True, esta enrolado facialmente y es posible autenticarlo
+* **isEnrollFingers** : Bandera - True, esta enrolado dactilar y es posible autenticarlo
+* **successOperation** : Bandera donde se puede evaluar si la consulta fué o no correcta
+
+--
+## <a name="ApiEntregaAuthenticationOperatorPersonFace"></a>Api Gateway MiiD - Entrega - Autenticacion Operador Face
+Realiza el proceso de Autenticación del Operador par el flujo de entrega de Tarjeta FinGo
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/EntregaOperador/AuthenticationOperatorPersonFace/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body Type
+* **form-data**
+## Opción 1 (Recomendada) - Envio DataKeys en el request
+
+* Los datakeys son obtenidos al realizar la carga de un archivo usando el servicio **UploadFile** o **UploadFileMultiple**
+
+Form Variables
+### Textos
+* **FaceDataKey** : DataKey del archivo con el contenido del rostro
+* **ExternalId** : Identificador unico generado por el dispositivo para posteriores consultas
+* **DocumentType** : Tipo de Documento (1=CC, 2=NIT, etc)
+* **DocumentNumber** : Numero de Documento
+
+Ejemplo de Llamado
+```console
+curl --location --request POST 'https://servicesdev.fingo.credit/mg/EntregaOperador/AuthenticationOperatorPersonFace' \
+--header 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...' \
+--form 'facedatakey="30ce7c1e-2792-48da-a7f3-cc759ead3c66"' \
+--form 'externalid="11EEA344-FFF23-2047"' \
+--form 'DocumentType="1"' \
+--form 'DocumentNumber="7715116"'
+```
+
+## Opción 2 (No Recomendada pero posible) - Envio Archivos en el request
+
+Form Variables
+### Binarios
+* **Face** : Binario - archivo con el contenido del rostro  
+### Textos
+* **ExternalId** : Identificador unico generado por el dispositivo para posteriores consultas
+* **DocumentType** : Tipo de Documento (1=CC, 2=NIT, etc)
+* **DocumentNumber** : Numero de Documento
+
+Ejemplo de Llamado
+```console
+curl --location --request POST 'https://servicesdev.fingo.credit/mg/EntregaOperador/AuthenticationOperatorPersonFace' \
+--header 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...' \
+--form 'Face=@"//imgSelfie.jpg"' \   
+--form 'ExternalId="aa-223344-111123-2003"' \
+--form 'DocumentType="1"' \
+--form 'DocumentNumber="7715116
+```
+--
+Ejemplo de Respuesta (por cualquiera de las 2 opciones):
+```json
+{
+    "cliente": {
+        "startDate": "2023-08-31T17:32:04.4033892-05:00",
+        "finishDate": "2023-08-31T17:32:07.7522279-05:00",        
+        "processId": "dee8a583-c345-4dd8-996a-97637f8f633a",
+        "status": 1, **        
+        "statusProcess": true**
+    },
+    "isValid": true
+}
+``` 
+
+Variables de respuesta (por cada elemento):
+* **cliente** : Objeto con la informacion de respuesta del Operador
+* **startDate** : Fecha de inicio del proceso de autenticacion
+* **finishDate** : Fecha de finalizacion del proceso de autenticacion
+* **status** : *Bandera - Estado del proceso, Si es = 1, la autenticación fué exitosa, otro valor, fallo la autenticación*
+* **statusProcess** : *Bandera - Estado del proceso, Si es True, la autenticación fué exitosa; false, fallo la autenticación*
+* **isValid** : Si el proceso se ejecutó de forma correcta (sin importar el estado de autenticacion)
+
+--
+## <a name="ApiEntregaConsultaClienteEntrega"></a>Api Gateway MiiD - Entrega - Consulta Cliente Entrega
+Dado el Tipo y Número de identificacion del cliente al entregar la tarjeta, se realiza la consulta si este está o no autorizado
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/EntregaOperador/ConsultaClienteEntrega/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{    
+    "tipoDocumentoId": 1,    
+    "numeroDocumento": "1031159822"
+}
+```
+
+Variables a enviar:
+* **tipoDocumentoId** : Tipo de Identificación del Cliente 
+* **numeroDocumento** : Numero de Documento del Cliente 
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+
+```json
+{
+    "biometricPerson": {               
+        "firstName": "VENANCIO ",
+        "lastName": "PRADA NAVARRO",        
+        "birthDate": "19860920",
+        "isEnrollFace": true,        
+        "isEnrollFingers": false
+    },
+    "authenticationMechanism": [
+        {
+            "id": 2,
+            "name": "FACE"
+        }
+    ],
+    "successOperation": true
+}
+```
+
+Variables de respuesta:
+* **biometricPerson** : Estructura con la información Biometrica del Operador
+* **firstName** : Nombres del Operador
+* **lastName** : Apellidos del Operador
+* **birthDate** : Fecha de Nacimiento del Operador
+* **isEnrollFace** : Bandera - True, esta enrolado facialmente y es posible autenticarlo
+* **isEnrollFingers** : Bandera - True, esta enrolado dactilar y es posible autenticarlo
+* **authenticationMechanism** : Estructura; Contiene los factores biometricos con los cuales se podrá realizar el proceso de autenticación del cliente
+* **successOperation** : Bandera donde se puede evaluar si la consulta fué o no correcta
+--
+
+## <a name="ApiEntregaAuthenticationPersonFace"></a>Api Gateway MiiD - Entrega - Authentication Person Face
+Realiza el proceso de autenticacion facial al cliente final dados los insumos capturados.
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/EntregaOperador/AuthenticationPersonFace/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body Type
+* **form-data**
+## Opción 1 (Recomendada) - Envio DataKeys en el request
+
+* Los datakeys son obtenidos al realizar la carga de un archivo usando el servicio **UploadFile** o **UploadFileMultiple**
+
+Form Variables
+### Textos
+* **FaceDataKey** : DataKey del archivo con el contenido del rostro
+* **DocumentBackImageDataKey** :  DataKey del archivo con el contenido del reverso del documento
+* **DocumentBackImageframeDataKey** : DataKey del archivo con el contenido full frame del reverso del documento
+* **DocumentFrontImageDataKey** : DataKey del archivo con el contenido del frente del documento
+* **DocumentFrontImageframeDataKey** : DataKey del archivo con el contenido full frame del frente del documento     
+* **BarcodeBase64**: Codigo de barras PDF417/MRZ codificado
+* **ExternalId** : Identificador unico generado por el dispositivo para posteriores consultas
+* **DocumentType** : Tipo de Documento (1=CC, 2=NIT, etc)
+* **DocumentNumber** : Numero de Documento
+
+Ejemplo de Llamado
+```console
+curl --location --request POST 'https://servicesdev.fingo.credit/mg/EntregaOperador/AuthenticationPersonFace' \
+--header 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...' \
+--form 'facedatakey="30ce7c1e-2792-48da-a7f3-cc759ead3c66"' \
+--form 'barcodebase64="MDM1ODAwNz.."' \
+--form 'externalid="11EEA344-111123-2047"' \
+--form 'documentbackimagedatakey="14677095-18fc-4b0a-b4ca-37f15d8b5488"' \
+--form 'documentfrontimagedatakey="0f702976-8251-4900-965e-6faad6c99c28"' \
+--form 'documentbackimageframedatakey="a0fecd2e-f70f-46f8-85f1-83df3f1f1bde"' \
+--form 'documentfrontimageframedatakey ="0f702976-8251-4900-965e-6faad6c99c28"' \
+--form 'DocumentType="1"' \
+--form 'DocumentNumber="80208223"'
+```
+
+## Opción 2 (No Recomendada pero posible)- Envio Archivos en el request
+
+Form Variables
+### Binarios
+* **Face** : Binario - archivo con el contenido del rostro
+* **DocumentBackImage** :  Binario - archivo con el contenido del reverso del documento
+* **DocumentBackImageframe** :  Binario - archivo con el contenido full frame del reverso del documento
+* **DocumentFrontImage** :  Binario - archivo con el contenido del frente del documento
+* **DocumentFrontImageframe** :  Binario - archivo con el contenido full frame del frente del documento   
+  
+### Textos
+* **BarcodeBase64**: Codigo de barras PDF417/MRZ codificado 
+* **ExternalId** : Identificador unico generado por el dispositivo para posteriores consultas
+* **DocumentType** : Tipo de Documento (1=CC, 2=NIT, etc)
+* **DocumentNumber** : Numero de Documento
+
+Ejemplo de Llamado
+```console
+curl --location --request POST 'https://servicesdev.fingo.credit/mg/miid/EnrollPersonAsyncGateway' \
+--header 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...' \
+--form 'Face=@"//imgSelfie.jpg"' \   
+--form 'BarcodeBase64="MDIwMTYyOT..."' \
+--form 'ExternalId="aa-223344-111123-2003"' \
+--form 'DocumentBackImage=@"//reversoCO.jpg"' \
+--form 'DocumentFrontImage=@"//frenteCO.png"' \
+--form 'DocumentBackImageFrame=@"//reversofullframeCO.jpg"' \
+--form 'DocumentFrontImageFrame=@"//frentefullframeCO.png"' \
+--form 'DocumentType="1"' \
+--form 'DocumentNumber="80208223
+```
+--
+Ejemplo de Respuesta (por cualquiera de las 2 opciones):
+```json
+{
+    "cliente": {        
+        "startDate": "2023-08-31T17:54:21.287732-05:00",
+        "finishDate": "2023-08-31T17:54:52.1174746-05:00",                
+        "status": 1,        
+        "statusProcess": true                
+    },
+    "isValid": true
+}
+``` 
+Variables de respuesta (por cada elemento):
+* **cliente** : Objeto con la informacion de respuesta del Operador
+* **startDate** : Fecha de inicio del proceso de autenticacion
+* **finishDate** : Fecha de finalizacion del proceso de autenticacion
+* **status** : *Bandera - Estado del proceso, Si es = 1, la autenticación fué exitosa, otro valor, fallo la autenticación*
+* **statusProcess** : *Bandera - Estado del proceso, Si es True, la autenticación fué exitosa; false, fallo la autenticación*
+* **isValid** : Si el proceso se ejecutó de forma correcta (sin importar el estado de autenticacion)
+
+--
+## <a name="ApiEntregaAuthenticationPersonFinger"></a>Api Gateway MiiD - Entrega - Authentication Person Finger
+Realiza el proceso de autenticacion dactilar al cliente final dados los insumos capturados.
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/EntregaOperador/AuthenticationPersonFinger/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body Type
+* **form-data**
+## Opción 1 (Recomendada) - Envio DataKeys en el request
+
+* Los datakeys son obtenidos al realizar la carga de un archivo usando el servicio **UploadFile** o **UploadFileMultiple**
+
+Form Variables
+### Textos
+* **FingerXDataKey** : DataKey del archivo con el contenido del dedo capturado
+  X es un valor que puede ser 1 hasta 10 o 20-21  
+  !Un registro es generado por cada dedo capturado!  
+
+* **DocumentBackImageDataKey** :  DataKey del archivo con el contenido del reverso del documento
+* **DocumentBackImageframeDataKey** : DataKey del archivo con el contenido full frame del reverso del documento
+* **DocumentFrontImageDataKey** : DataKey del archivo con el contenido del frente del documento
+* **DocumentFrontImageframeDataKey** : DataKey del archivo con el contenido full frame del frente del documento     
+* **BarcodeBase64**: Codigo de barras PDF417/MRZ codificado 
+* **ExternalId** : Identificador unico generado por el dispositivo para posteriores consultas
+* **DocumentType** : Tipo de Documento (1=CC, 2=NIT, etc)
+* **DocumentNumber** : Numero de Documento
+
+Ejemplo de Llamado
+```console
+curl --location --request POST 'https://servicesdev.fingo.credit/mg/EntregaOperador/AuthenticationPersonFinger' \
+--header 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...' \
+--form 'finger2datakey="050424f6-a45c-4362-8fd3-2999bc055096"' \
+--form 'finger3datakey="44bc4c13-0ead-4346-a752-57d7a6b3931c"' \
+--form 'finger4datakey="a0fecd2e-f70f-46f8-85f1-83df3f1f1bde"' \
+--form 'finger1datakey="05ed66f7-0c16-4df3-821a-3332af68447d"' \
+--form 'finger21datakey="57d7a6b3-00ea-446f-821a-cd759ead3c66"' \
+--form 'barcodebase64="MDM1ODAwNz.."' \
+--form 'externalid="11EEA344-111123-2047"' \
+--form 'documentbackimagedatakey="14677095-18fc-4b0a-b4ca-37f15d8b5488"' \
+--form 'documentfrontimagedatakey="0f702976-8251-4900-965e-6faad6c99c28"' \
+--form 'documentbackimageframedatakey="a0fecd2e-f70f-46f8-85f1-83df3f1f1bde"' \
+--form 'documentfrontimageframedatakey ="0f702976-8251-4900-965e-6faad6c99c28"' \
+--form 'DocumentType="1"' \
+--form 'DocumentNumber="80208223"'
+```
+
+## Opción 2 (No Recomendada pero posible)- Envio Archivos en el request
+
+Form Variables
+### Binarios
+* **FingerX** : Binario - archivo con el contenido del dedo capturado
+  X es un valor que puede ser 1 hasta 10 o 20-21  
+  !Un registro es generado por cada dedo capturado!  
+
+* **DocumentBackImage** :  Binario - archivo con el contenido del reverso del documento
+* **DocumentBackImageframe** :  Binario - archivo con el contenido full frame del reverso del documento
+* **DocumentFrontImage** :  Binario - archivo con el contenido del frente del documento
+* **DocumentFrontImageframe** :  Binario - archivo con el contenido full frame del frente del documento   
+  
+### Textos
+* **BarcodeBase64**: Codigo de barras PDF417/MRZ codificado 
+* **ExternalId** : Identificador unico generado por el dispositivo para posteriores consultas
+* **DocumentType** : Tipo de Documento (1=CC, 2=NIT, etc)
+* **DocumentNumber** : Numero de Documento
+
+Ejemplo de Llamado
+```console
+curl --location --request POST 'https://servicesdev.fingo.credit/mg/EntregaOperador/AuthenticationPersonFinger' \
+--header 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...' \
+--form 'Finger3=@"//insHuella2.jpg"' \ 
+--form 'Finger4=@"//insHuella3.jpg"' \ 
+--form 'Finger5=@"//insHuella4.jpg"' \ 
+--form 'Finger2=@"//insHuella1.jpg"' \ 
+--form 'Finger21=@"//insHuella21.jpg"' \ 
+--form 'BarcodeBase64="MDIwMTYyOT..."' \
+--form 'ExternalId="aa-223344-111123-2003"' \
+--form 'DocumentBackImage=@"//reversoCO.jpg"' \
+--form 'DocumentFrontImage=@"//frenteCO.png"' \
+--form 'DocumentBackImageFrame=@"//reversofullframeCO.jpg"' \
+--form 'DocumentFrontImageFrame=@"//frentefullframeCO.png"' \
+--form 'DocumentType="1"' \
+--form 'DocumentNumber="80208223
+```
+--
+Ejemplo de Respuesta (por cualquiera de las 2 opciones):
+```json
+{
+    "cliente": {        
+        "startDate": "2023-08-31T17:54:21.287732-05:00",
+        "finishDate": "2023-08-31T17:54:52.1174746-05:00",                
+        "status": 1,        
+        "statusProcess": true                
+    },
+    "isValid": true
+}
+``` 
+
+Variables de respuesta (por cada elemento):
+* **cliente** : Objeto con la informacion de respuesta del Operador
+* **startDate** : Fecha de inicio del proceso de autenticacion
+* **finishDate** : Fecha de finalizacion del proceso de autenticacion
+* **status** : *Bandera - Estado del proceso, Si es = 1, la autenticación fué exitosa, otro valor, fallo la autenticación*
+* **statusProcess** : *Bandera - Estado del proceso, Si es True, la autenticación fué exitosa; false, fallo la autenticación*
+* **isValid** : Si el proceso se ejecutó de forma correcta (sin importar el estado de autenticacion)
+
+--
+
+--
+## <a name="ApiEntregaActivaTarjetaClienteEntrega"></a>Api Gateway MiiD - Entrega - Activar Tarjeta
+Dado el Tipo y Número de identificacion del cliente al entregar la tarjeta, se realiza la activación de esta!
+
+Url - **POST**
+https://servicesdev.fingo.credit/mg/EntregaOperador/ActivaTarjetaClienteEntrega/
+
+**Cabeceras a Enviar**
+* Se debe enviar el header *Authorization*, con el campo *accessToken* Obtenido en el servicio Login
+```sh
+--header Authorization": Bearer eyJ0eXAi......."
+```
+
+Body
+```json
+{    
+    "tipoDocumentoId": 1,    
+    "numeroDocumento": "1031159822"
+}
+```
+
+Variables a enviar:
+* **tipoDocumentoId** : Tipo de Identificación del Cliente 
+* **numeroDocumento** : Numero de Documento del Cliente 
+
+Si la informacion ingresada es correcta, el Api Retorna
+* **status** : 200
+```json
+{    
+    "isValid": true,
+    "message": "Activacion Exitosa"    
+}
+```
+
+Variables de respuesta:
+* **isValid** : *Bandera - True, Proceso activación exitoso*
+* **message** : Mensaje de la Operación
 --
